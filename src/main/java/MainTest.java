@@ -24,7 +24,6 @@ public class MainTest {
 
         System.out.println("\n findish pour TD test1");
         Dish dish = dataRetriever.findDishById(1);
-
         try {
             System.out.println("Marge brute : " + dish.getGrossMargin());
         } catch (IllegalStateException e) {
