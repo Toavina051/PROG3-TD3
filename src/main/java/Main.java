@@ -1,19 +1,34 @@
-public class Main {
+import java.util.List;
+
+public class MainTest {
     public static void main(String[] args) {
-        // Log before changes
-        DataRetriever dataRetriever = new DataRetriever();
-        Dish dish = dataRetriever.findDishById(4
+        DBConnection dbConnection = new DBConnection();
+        DataRetriever dataRetriever = new DataRetriever(dbConnection);
+        System.out.println("TEST a) findDishById(1)");
+        try {
+            Dish dish = dataRetriever.findDishById(1);
+            System.out.println(dish);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
 
-        );
-        System.out.println(dish);
+        System.out.println("\nTEST c) findIngredients(page=2, size=2)");
+        List<Ingredient> ingredientsPage2 =
+                dataRetriever.findIngredients(3, 5);
+        ingredientsPage2.forEach(System.out::println);
 
-        // Log after changes
-//        dish.setIngredients(List.of(new Ingredient(1), new Ingredient(2)));
-//        Dish newDish = dataRetriever.saveDish(dish);
-//        System.out.println(newDish);
+        System.out.println("\nTEST e) findDishByIngredientName(\"eur\")");
+        List<Dish> dishesWithFleur =
+                dataRetriever.findDishByIngredientName("eur");
+        dishesWithFleur.forEach(System.out::println);
 
-        // Ingredient creations
-        //List<Ingredient> createdIngredients = dataRetriever.createIngredients(List.of(new Ingredient(null, "Fromage", CategoryEnum.DAIRY, 1200.0)));
-        //System.out.println(createdIngredients);
+        System.out.println("\n findish pour TD test1");
+        Dish dish = dataRetriever.findDishById(1);
+
+        try {
+            System.out.println("Marge brute : " + dish.getGrossMargin());
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

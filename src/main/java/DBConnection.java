@@ -3,25 +3,14 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
-
-    public Connection getConnection() {
+    public Connection getDBConnection() throws SQLException {
         try {
-            String jdbcURl = System.getenv("JDBC_URl"); //
-            String user = System.getenv("USER"); //mini_dish_db_manager
-            String password = System.getenv("PASSWORD"); //123456
-            return DriverManager.getConnection("jdbc:postgresql://localhost:5432/mini_dish_db", "postgres", "postgres");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void closeConnection(Connection connection) {
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            return DriverManager.getConnection(
+                    System.getenv("JDBC_URL"),
+                    System.getenv("USERNAME"),
+                    System.getenv("PASSWORD"));
+        }catch (SQLException e) {
+            throw new SQLException(e.getMessage());
         }
     }
 }
