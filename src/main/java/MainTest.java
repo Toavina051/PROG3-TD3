@@ -2,32 +2,52 @@ import java.util.List;
 
 public class MainTest {
     public static void main(String[] args) {
-        DBConnection dbConnection = new DBConnection();
-        DataRetriever dataRetriever = new DataRetriever(dbConnection);
-        System.out.println("TEST a) findDishById(1)");
-        try {
-            Dish dish = dataRetriever.findDishById(1);
-            System.out.println(dish);
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+        System.out.println("MAIN STARTED");
 
-        System.out.println("\nTEST c) findIngredients(page=2, size=2)");
-        List<Ingredient> ingredientsPage2 =
-                dataRetriever.findIngredients(3, 5);
-        ingredientsPage2.forEach(System.out::println);
+        DataRetriever dataRetriever = new DataRetriever();
 
-        System.out.println("\nTEST e) findDishByIngredientName(\"eur\")");
-        List<Dish> dishesWithFleur =
-                dataRetriever.findDishByIngredientName("eur");
-        dishesWithFleur.forEach(System.out::println);
+        /* ========= 1. CREATION DES INGREDIENTS (NORMALISES) ========= */
 
-        System.out.println("\n findish pour TD test1");
-        Dish dish = dataRetriever.findDishById(1);
-        try {
-            System.out.println("Marge brute : " + dish.getGrossMargin());
-        } catch (IllegalStateException e) {
-            System.out.println(e.getMessage());
-        }
+        Ingredient laitue = new Ingredient();
+        laitue.setName("Laitue");
+        laitue.setCategory(CategoryEnum.VEGETABLE);
+        laitue.setPrice(300.0);
+
+        Ingredient tomate = new Ingredient();
+        tomate.setName("Tomate");
+        tomate.setCategory(CategoryEnum.VEGETABLE);
+        tomate.setPrice(600.0);
+
+        dataRetriever.saveIngredients(List.of(laitue, tomate));
+
+        /* ========= 2. CREATION DU PLAT ========= */
+
+        Dish salade = new Dish();
+        salade.setName("Salade fraîche");
+        salade.setDishType(DishTypeEnum.STARTER);
+        salade.setPrice(8000.0);
+
+        // Quantités requises (dépendent du plat)
+        laitue.setQuantity(1.0);
+        tomate.setQuantity(0.25);
+
+        salade.setIngredients(List.of(laitue, tomate));
+
+        Dish savedDish = dataRetriever.saveDish(salade);
+
+        /* ========= 3. RECUPERATION ========= */
+
+        Dish fetchedDish = dataRetriever.findDishById(savedDish.getId());
+
+        System.out.println("Plat récupéré :");
+        System.out.println(fetchedDish);
+
+        /* ========= 4. RESULTATS ATTENDUS ========= */
+
+        System.out.println("\nCoût du plat (ATTENDU = 450):");
+        System.out.println(fetchedDish.getDishCost());
+
+        System.out.println("\nMarge brute (ATTENDU = 7550):");
+        System.out.println(fetchedDish.getGrossMargin());
     }
 }
