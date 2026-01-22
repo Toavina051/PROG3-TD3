@@ -1,3 +1,6 @@
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Ingredient {
@@ -7,6 +10,7 @@ public class Ingredient {
     private Double price;
     private Dish dish;
     private Double quantity;
+    private List<StockMouvement> stockMouvementList = new ArrayList<>();
 
     public Double getQuantity() {
         return quantity;
@@ -28,6 +32,29 @@ public class Ingredient {
         this.name = name;
         this.category = category;
         this.price = price;
+    }
+
+    public List<StockMouvement> getStockMouvementList() {
+        return stockMouvementList;
+    }
+
+    public void setStockMouvementList(List<StockMouvement> stockMouvementList) {
+        this.stockMouvementList = stockMouvementList;
+    }
+
+    public double getStockValueAt(LocalDate date) {
+        double stock = 0;
+
+        for (StockMouvement sm : stockMouvementList) {
+            if (!sm.getCreaction_datetime().isAfter(date)) {
+                if (sm.getMouvementType() == MouvementType.IN) {
+                    stock += sm.getQuantity();
+                } else {
+                    stock -= sm.getQuantity();
+                }
+            }
+        }
+        return stock;
     }
 
     public String getDishName() {
