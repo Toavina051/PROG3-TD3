@@ -1,6 +1,7 @@
 import java.time.LocalDate;
 
 public class StockMouvement {
+
     private int id;
     private Ingredient ingredient;
     private MouvementType mouvementType;

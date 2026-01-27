@@ -1,43 +1,102 @@
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainTest {
     public static void main(String[] args) {
-        System.out.println("MAIN STARTED");
 
         DataRetriever dataRetriever = new DataRetriever();
 
-        Ingredient laitue = new Ingredient();
-        laitue.setName("Laitue");
-        laitue.setCategory(CategoryEnum.VEGETABLE);
-        laitue.setPrice(300.0);
+        // ===========================
+        // Tester la récupération d'un ingrédient
+        // ===========================
+        try {
+            int ingredientId = 1; // à adapter selon ta base
+            Ingredient ingredient = dataRetriever.findIngredientById(ingredientId);
+            System.out.println("Ingrédient récupéré : " + ingredient.getName()
+                    + ", prix : " + ingredient.getPrice());
 
-        Ingredient tomate = new Ingredient();
-        tomate.setName("Tomate");
-        tomate.setCategory(CategoryEnum.VEGETABLE);
-        tomate.setPrice(600.0);
+            System.out.println("Mouvements de stock :");
+            for (StockMouvement sm : ingredient.getStockMovementList()) {
+                System.out.println(" - " + sm.getMouvementType()
+                        + " " + sm.getQuantity()
+                        + " " + sm.getUnit()
+                        + " le " + sm.getCreaction_datetime());
+            }
 
-        dataRetriever.saveIngredients(List.of(laitue, tomate));
+        } catch (Exception e) {
+            System.err.println("Erreur récupération ingrédient : " + e.getMessage());
+        }
 
-        Dish salade = new Dish();
-        salade.setName("Salade fraîche");
-        salade.setDishType(DishTypeEnum.STARTER);
-        salade.setPrice(8000.0);
-        laitue.setQuantity(1.0);
-        tomate.setQuantity(0.25);
+        // ===========================
+        //Tester l'ajout d'un nouvel ingrédient
+        // ===========================
+        try {
+            Ingredient newIngredient = new Ingredient();
+            newIngredient.setName("Voanj");
+            newIngredient.setPrice(2.5);
+            newIngredient.setCategory(CategoryEnum.VEGETABLE);
 
-        salade.setIngredients(List.of(laitue, tomate));
+            List<StockMouvement> movements = new ArrayList<>();
+            StockMouvement sm1 = new StockMouvement();
+            sm1.setId((int) (System.currentTimeMillis() % Integer.MAX_VALUE));
+            sm1.setQuantity(100);
+            sm1.setMouvementType(MouvementType.IN);
+            sm1.setUnit(UnitType.KG);
+            sm1.setCreaction_datetime(LocalDate.now());
+            movements.add(sm1);
 
-        Dish savedDish = dataRetriever.saveDish(salade);
+            newIngredient.setStockMovementList(movements);
 
-        Dish fetchedDish = dataRetriever.findDishById(savedDish.getId());
+            Ingredient savedIngredient = dataRetriever.saveIngredient(newIngredient);
+            System.out.println("Ingrédient ajouté avec ID : " + savedIngredient.getId());
 
-        System.out.println("Plat récupéré :");
-        System.out.println(fetchedDish);
+        } catch (Exception e) {
+            System.err.println("Erreur ajout ingrédient : " + e.getMessage());
+        }
 
-        /*System.out.println("\nCoût du plat (ATTENDU = 450):");
-        System.out.println(fetchedDish.getDishCost());
+        // ===========================
+        // Tester la création d'une commande
+        // ===========================
+        try {
+            Dish dish = new Dish();
+            dish.setId(1);
+            dish.setName("Salade");
+            dish.setPrice(10.0);
+            dish.setDishType(DishTypeEnum.MAIN);
+            dish.setIngredients(new ArrayList<>());
+            dish.getIngredients().add(dataRetriever.findIngredientById(1));
 
-        System.out.println("\nMarge brute (ATTENDU = 7550):");
-        System.out.println(fetchedDish.getGrossMargin());*/
+            DishOrder dishOrder = new DishOrder();
+            dishOrder.setDish(dish);
+            dishOrder.setQuantity(2);
+
+            Order order = new Order();
+            order.setReference("ORD-" + System.currentTimeMillis());
+            order.setCreationDate(Instant.now());
+            List<DishOrder> dishOrders = new ArrayList<>();
+            dishOrders.add(dishOrder);
+            order.setDishOrders(dishOrders);
+
+            Order savedOrder = dataRetriever.saveOrder(order);
+            System.out.println("Commande enregistrée avec ID : " + savedOrder.getId());
+
+        } catch (Exception e) {
+            System.err.println("Erreur création commande : " + e.getMessage());
+        }
+
+        // ===========================
+        //Tester le calcul de stock à une date donnée
+        // ===========================
+        try {
+            int ingredientId = 1; // à adapter
+            LocalDate date = LocalDate.now();
+            double stockValue = dataRetriever.getStockValueAt(ingredientId, date);
+            System.out.println("Stock de l'ingrédient " + ingredientId + " au " + date + " : " + stockValue);
+        } catch (Exception e) {
+            System.err.println("Erreur calcul stock : " + e.getMessage());
+        }
+
     }
 }
