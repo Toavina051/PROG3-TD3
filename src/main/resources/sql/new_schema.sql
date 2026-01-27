@@ -11,7 +11,7 @@ CREATE TYPE ingredient_category AS ENUM (
 );
 
 CREATE TYPE unit_type AS ENUM ('PCS', 'KG', 'L');
-
+CREATE TYPE mouvement_type AS ENUM ('IN', 'OUT');
 
 -- Pour Dish
 CREATE TABLE dish (
@@ -29,6 +29,29 @@ CREATE TABLE ingredient (
     price NUMERIC NOT NULL,
     category ingredient_category NOT NULL
 );
+
+CREATE TABLE stockmovement (
+    id_stock INT PRIMARY KEY,
+    id_ingredient INT NOT NULL REFERENCES ingredient(id),
+    quantity NUMERIC NOT NULL,
+    type mouvement_type NOT NULL,
+    unit unit_type NOT NULL,
+    creation_datetime DATE NOT NULL
+);
+
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    reference VARCHAR(20) UNIQUE NOT NULL,
+    creation_datetime TIMESTAMP NOT NULL
+);
+
+CREATE TABLE dish_order (
+    id SERIAL PRIMARY KEY,
+    order_id INT NOT NULL REFERENCES orders(id),
+    dish_id INT NOT NULL REFERENCES dish(id),
+    quantity INT NOT NULL
+);
+
 
 
 -- Pour les jointures
